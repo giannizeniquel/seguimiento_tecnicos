@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { throwError } from 'rxjs';
@@ -38,7 +38,8 @@ export class ApiService {
       headers: this.getHeaders(),
       params
     }).pipe(
-      catchError(error => throwError(() => error.error?.error || error))
+      map(response => (response as any).data || (response as any)),
+      catchError(error => of(error))
     );
   }
 
@@ -46,7 +47,8 @@ export class ApiService {
     return this.http.post<ApiResponse<T>>(`${this.baseUrl}${endpoint}`, body, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(error => throwError(() => error.error?.error || error))
+      map(response => (response as any).data || (response as any)),
+      catchError(error => of(error))
     );
   }
 
@@ -54,7 +56,8 @@ export class ApiService {
     return this.http.put<ApiResponse<T>>(`${this.baseUrl}${endpoint}`, body, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(error => throwError(() => error.error?.error || error))
+      map(response => (response as any).data || (response as any)),
+      catchError(error => of(error))
     );
   }
 
@@ -62,7 +65,8 @@ export class ApiService {
     return this.http.delete<ApiResponse<T>>(`${this.baseUrl}${endpoint}`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(error => throwError(() => error.error?.error || error))
+      map(response => (response as any).data || (response as any)),
+      catchError(error => of(error))
     );
   }
 }

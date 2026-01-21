@@ -24,7 +24,7 @@ class UserController extends AbstractController
         private UserRepository $userRepository,
         private ActivityRepository $activityRepository,
         private UserPasswordHasherInterface $passwordHasher,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
     ) {
     }
 
@@ -48,12 +48,12 @@ class UserController extends AbstractController
 
         if (isset($filters['isActive'])) {
             $qb->andWhere('u.isActive = :isActive')
-               ->setParameter('isActive', $filters['isActive'] === 'true');
+               ->setParameter('isActive', 'true' === $filters['isActive']);
         }
 
         if (isset($filters['search'])) {
             $qb->andWhere('u.name LIKE :search OR u.email LIKE :search')
-               ->setParameter('search', '%' . $filters['search'] . '%');
+               ->setParameter('search', '%'.$filters['search'].'%');
         }
 
         $users = $qb->getQuery()->getResult();
@@ -70,7 +70,7 @@ class UserController extends AbstractController
     {
         $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
 
-        if (!$currentUser || $currentUser->getRole() !== 'ADMIN') {
+        if (!$currentUser || 'ADMIN' !== $currentUser->getRole()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
@@ -89,6 +89,7 @@ class UserController extends AbstractController
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
+
             return new JsonResponse(['error' => 'Validation failed', 'details' => $errorMessages], 400);
         }
 
@@ -101,25 +102,6 @@ class UserController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse($this->serializeUser($newUser), 201);
-
-        $errors = $this->validator->validate($userEntity);
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage();
-            }
-            return new JsonResponse(['error' => 'Validation failed', 'details' => $errorMessages], 400);
-        }
-
-        $existingUser = $this->userRepository->findOneBy(['email' => $data['email'] ?? '']);
-        if ($existingUser) {
-            return new JsonResponse(['error' => 'Email already exists'], 409);
-        }
-
-        $this->entityManager->persist($userEntity);
-        $this->entityManager->flush();
-
-        return new JsonResponse($this->serializeUser($userEntity), 201);
     }
 
     #[Route('/{id}', name: 'user_show', methods: ['GET'])]
@@ -157,7 +139,7 @@ class UserController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        if ($currentUser->getRole() === 'ADMIN') {
+        if ('ADMIN' === $currentUser->getRole()) {
             if (isset($data['email']) && $data['email'] !== $userEntity->getEmail()) {
                 $existingUser = $this->userRepository->findOneBy(['email' => $data['email']]);
                 if ($existingUser) {
@@ -196,6 +178,7 @@ class UserController extends AbstractController
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
+
             return new JsonResponse(['error' => 'Validation failed', 'details' => $errorMessages], 400);
         }
 
@@ -209,7 +192,7 @@ class UserController extends AbstractController
     {
         $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
 
-        if (!$currentUser || $currentUser->getRole() !== 'ADMIN') {
+        if (!$currentUser || 'ADMIN' !== $currentUser->getRole()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
@@ -223,7 +206,7 @@ class UserController extends AbstractController
             return new JsonResponse(['error' => 'Cannot delete yourself'], 422);
         }
 
-        if ($userEntity->getRole() === 'ADMIN') {
+        if ('ADMIN' === $userEntity->getRole()) {
             $adminCount = $this->userRepository->createQueryBuilder('u')
                 ->select('COUNT(u.id)')
                 ->where('u.role = :role')
@@ -262,7 +245,7 @@ class UserController extends AbstractController
     {
         $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
 
-        if (!$currentUser || $currentUser->getRole() !== 'ADMIN') {
+        if (!$currentUser || 'ADMIN' !== $currentUser->getRole()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
@@ -276,7 +259,7 @@ class UserController extends AbstractController
             return new JsonResponse(['error' => 'Cannot deactivate yourself'], 422);
         }
 
-        if ($userEntity->getRole() === 'ADMIN' && $userEntity->isActive()) {
+        if ('ADMIN' === $userEntity->getRole() && $userEntity->isActive()) {
             $adminCount = $this->userRepository->createQueryBuilder('u')
                 ->select('COUNT(u.id)')
                 ->where('u.role = :role')
@@ -307,7 +290,7 @@ class UserController extends AbstractController
             'phone' => $userEntity->getPhone(),
             'isActive' => $userEntity->isActive(),
             'createdAt' => $userEntity->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updatedAt' => $userEntity->getUpdatedAt()->format('Y-m-d H:i:s')
+            'updatedAt' => $userEntity->getUpdatedAt()->format('Y-m-d H:i:s'),
         ];
     }
 }

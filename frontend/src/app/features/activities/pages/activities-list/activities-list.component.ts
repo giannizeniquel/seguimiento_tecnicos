@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ActivityService } from '../../../core/services/activity.service';
-import { IActivity } from '../../../core/models';
-import { AuthService } from '../../../core/services/auth.service';
+import { ActivityService } from '../../../../core/services/activity.service';
+import { IActivity } from '../../../../core/models';
 
 @Component({
   selector: 'app-activities-list',
@@ -26,10 +25,10 @@ export class ActivitiesListComponent implements OnInit {
   constructor(
     private activityService: ActivityService,
     private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private router: Router,
+    @Inject(ActivityService) private _activityService: ActivityService
   ) {
-    this.currentUser = this.authService.getCurrentUserValue();
+    this.activityService = _activityService;
     this.initFiltersForm();
   }
 

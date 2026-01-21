@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ActivityService } from '../../../core/services/activity.service';
-import { IActivity } from '../../../core/models';
-import { AuthService } from '../../../core/services/auth.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivityService } from '../../../../core/services/activity.service';
+import { IActivity } from '../../../../core/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,10 +26,10 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private activityService: ActivityService,
-    private authService: AuthService,
-    private router: Router
+    private router: Router,
+    @Inject(ActivityService) private _activityService: ActivityService
   ) {
-    this.currentUser = this.authService.getCurrentUserValue();
+    this.activityService = _activityService;
   }
 
   ngOnInit(): void {
@@ -80,13 +81,13 @@ export class DashboardComponent implements OnInit {
   getStatusBadgeClass(status: string): string {
     switch (status) {
       case 'PENDING':
-        return 'bg-warning';
+        return 'bg-warning text-dark';
       case 'IN_PROGRESS':
-        return 'bg-info';
+        return 'bg-info text-white';
       case 'COMPLETED':
-        return 'bg-success';
+        return 'bg-success text-white';
       case 'CANCELLED':
-        return 'bg-danger';
+        return 'bg-danger text-white';
       default:
         return 'bg-secondary';
     }
@@ -114,9 +115,9 @@ export class DashboardComponent implements OnInit {
       case 'HIGH':
         return 'bg-warning text-dark';
       case 'MEDIUM':
-        return 'bg-info text-dark';
+        return 'bg-info text-white';
       case 'LOW':
-        return 'bg-secondary';
+        return 'bg-secondary text-white';
       default:
         return 'bg-secondary';
     }

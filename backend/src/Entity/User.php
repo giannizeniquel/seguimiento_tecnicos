@@ -75,7 +75,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -87,7 +86,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPasswordHash(string $passwordHash): self
     {
         $this->passwordHash = $passwordHash;
-
         return $this;
     }
 
@@ -99,7 +97,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(string $role): self
     {
         $this->role = $role;
-
         return $this;
     }
 
@@ -111,7 +108,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -123,7 +119,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
-
         return $this;
     }
 
@@ -135,7 +130,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
-
         return $this;
     }
 
@@ -147,7 +141,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -159,7 +152,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
 

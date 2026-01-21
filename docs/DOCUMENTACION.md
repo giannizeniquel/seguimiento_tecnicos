@@ -285,6 +285,9 @@ npm start
 # Compilar para producción
 npm run build
 
+# Verificar TypeScript
+npx tsc --noEmit
+
 # Ejecutar tests
 npm test
 

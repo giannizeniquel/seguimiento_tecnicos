@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/dashboard">
+    <a class="navbar-brand" [routerLink]="'/dashboard'">
       <i class="bi bi-geo-alt-fill"></i>
       <span>Seguimiento Técnicos</span>
     </a>
@@ -17,68 +17,68 @@
     <div class="collapse navbar-collapse" [class.show]="isMenuOpen">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">
+          <a class="nav-link" [routerLink]="'/dashboard'" routerLinkActive="active" (click)="closeMenu()">
             <i class="bi bi-speedometer2"></i>
             Dashboard
           </a>
         </li>
-        <li class="nav-item">
-          @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'COORDINATOR') {
-            <a class="nav-link" routerLink="/activities" routerLinkActive="active" (click)="closeMenu()">
+        @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'COORDINATOR') {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/activities'" routerLinkActive="active" (click)="closeMenu()">
               <i class="bi bi-list-task"></i>
               Actividades
             </a>
-          }
-        </li>
-        <li class="nav-item">
-          @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'COORDINATOR') {
-            <a class="nav-link" routerLink="/users" routerLinkActive="active" (click)="closeMenu()">
+          </li>
+        }
+        @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'COORDINATOR') {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/users'" routerLinkActive="active" (click)="closeMenu()">
               <i class="bi bi-people"></i>
               Usuarios
             </a>
-          }
-        </li>
-        <li class="nav-item">
-          @if (currentUser?.role === 'TECHNICIAN') {
-            <a class="nav-link" routerLink="/my-assignments" routerLinkActive="active" (click)="closeMenu()">
+          </li>
+        }
+        @if (currentUser?.role === 'TECHNICIAN') {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/my-assignments'" routerLinkActive="active" (click)="closeMenu()">
               <i class="bi bi-person-check"></i>
               Mis Asignaciones
             </a>
-          }
-        </li>
-      </ul>
-
-      <ul class="navbar-nav mb-2 mb-lg-0">
-        @if (currentUser) {
-          <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <i class="bi bi-person-circle"></i>
-            {{ currentUser.name }}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" href="javascript:void(0)">
-                <i class="bi bi-person"></i>
-                Perfil: {{ currentUser.role }}
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li>
-              <a class="dropdown-item" href="javascript:void(0)" (click)="logout()">
-                <i class="bi bi-box-arrow-right"></i>
-                Cerrar Sesión
-              </a>
-        </li>
+          </li>
         }
       </ul>
-        </li>
-      </ul>
+
+      @if (currentUser) {
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="bi bi-person-circle"></i>
+              {{ currentUser.name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="javascript:void(0)">
+                  <i class="bi bi-person"></i>
+                  Perfil: {{ currentUser.role }}
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li>
+                <a class="dropdown-item" href="javascript:void(0)" (click)="logout()">
+                  <i class="bi bi-box-arrow-right"></i>
+                  Cerrar Sesión
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      }
     </div>
   </div>
 </nav>

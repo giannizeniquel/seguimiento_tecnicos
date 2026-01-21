@@ -448,11 +448,17 @@ CREATE TABLE notifications (
 - `GET /api/auth/me` - Obtener usuario actual
 
 ### Usuarios
-- `GET /api/users` - Listar usuarios
-- `POST /api/users` - Crear usuario
-- `GET /api/users/{id}` - Obtener usuario
-- `PUT /api/users/{id}` - Actualizar usuario
-- `DELETE /api/users/{id}` - Eliminar usuario
+- `GET /api/users` - Listar usuarios (Admin, Coordinator)
+- `POST /api/users` - Crear usuario (Solo Admin)
+- `GET /api/users/{id}` - Obtener usuario (Admin, Coordinator)
+- `PUT /api/users/{id}` - Actualizar usuario (Admin: todo, Coordinator: limitado)
+- `DELETE /api/users/{id}` - Eliminar usuario (Solo Admin)
+- `PUT /api/users/{id}/toggle-active` - Activar/desactivar usuario (Solo Admin)
+
+**Filtros para GET /api/users:**
+- `role` - Filtrar por rol (ADMIN, COORDINATOR, TECHNICIAN, ATTENDEE)
+- `isActive` - Filtrar por estado (true/false)
+- `search` - Buscar por nombre o email
 
 ### Actividades
 - `GET /api/activities` - Listar actividades

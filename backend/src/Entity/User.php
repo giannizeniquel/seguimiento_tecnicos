@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
@@ -20,18 +21,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $id;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[Assert\NotBlank(message: 'El email es obligatorio')]
+    #[Assert\Email(message: 'El email no es válido')]
     private string $email;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: 'La contraseña es obligatoria')]
+    #[Assert\Length(min: 6, minMessage: 'La contraseña debe tener al menos 6 caracteres')]
     private string $passwordHash;
 
     #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'El rol es obligatorio')]
+    #[Assert\Choice(choices: ['ADMIN', 'COORDINATOR', 'TECHNICIAN', 'ATTENDEE'], message: 'Rol no válido')]
     private string $role;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: 'El nombre es obligatorio')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'El nombre debe tener al menos 2 caracteres', maxMessage: 'El nombre no puede tener más de 255 caracteres')]
     private string $name;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[Assert\Regex(pattern: '/^[0-9+\-\s()]+$/', message: 'El teléfono no es válido')]
     private ?string $phone;
 
     #[ORM\Column(type: 'boolean')]
@@ -65,6 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -76,6 +87,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPasswordHash(string $passwordHash): self
     {
         $this->passwordHash = $passwordHash;
+
         return $this;
     }
 
@@ -87,6 +99,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(string $role): self
     {
         $this->role = $role;
+
         return $this;
     }
 
@@ -98,6 +111,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -109,6 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
+
         return $this;
     }
 
@@ -120,6 +135,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
         return $this;
     }
 
@@ -131,6 +147,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -142,6 +159,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 

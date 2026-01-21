@@ -8,6 +8,7 @@ use App\Repository\ActivityLogRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ActivityLogRepository::class)]
 #[ORM\Table(name: 'activity_logs')]
@@ -26,13 +27,17 @@ class ActivityLog
 
     #[ORM\ManyToOne(targetEntity: Activity::class)]
     #[ORM\JoinColumn(name: 'activity_id', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: 'La actividad es obligatoria')]
     private Activity $activity;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: 'El usuario es obligatorio')]
     private User $user;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
+    #[Assert\NotBlank(message: 'La acción es obligatoria')]
+    #[Assert\Choice(choices: [self::ACTION_CREATED, self::ACTION_UPDATED, self::ACTION_STATUS_CHANGED, self::ACTION_ASSIGNED, self::ACTION_TIME_LOGGED], message: 'Acción no válida')]
     private string $action;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -42,6 +47,7 @@ class ActivityLog
     private ?array $newValue;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\Type('DateTime', message: 'La fecha de creación no es válida')]
     private \DateTimeInterface $createdAt;
 
     public function __construct()
@@ -63,6 +69,7 @@ class ActivityLog
     public function setActivity(Activity $activity): self
     {
         $this->activity = $activity;
+
         return $this;
     }
 
@@ -74,6 +81,7 @@ class ActivityLog
     public function setUser(User $user): self
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -85,6 +93,7 @@ class ActivityLog
     public function setAction(string $action): self
     {
         $this->action = $action;
+
         return $this;
     }
 
@@ -96,6 +105,7 @@ class ActivityLog
     public function setOldValue(?array $oldValue): self
     {
         $this->oldValue = $oldValue;
+
         return $this;
     }
 
@@ -107,6 +117,7 @@ class ActivityLog
     public function setNewValue(?array $newValue): self
     {
         $this->newValue = $newValue;
+
         return $this;
     }
 
@@ -118,6 +129,7 @@ class ActivityLog
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 }

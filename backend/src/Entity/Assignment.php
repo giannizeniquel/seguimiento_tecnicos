@@ -8,6 +8,7 @@ use App\Repository\AssignmentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AssignmentRepository::class)]
 #[ORM\Table(name: 'assignments')]
@@ -20,20 +21,25 @@ class Assignment
 
     #[ORM\ManyToOne(targetEntity: Activity::class, inversedBy: 'assignments')]
     #[ORM\JoinColumn(name: 'activity_id', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: 'La actividad es obligatoria')]
     private Activity $activity;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'technician_id', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: 'El técnico es obligatorio')]
     private User $technician;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'assigned_by', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: 'El usuario que asigna es obligatorio')]
     private User $assignedBy;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\Type('DateTime', message: 'La fecha de asignación no es válida')]
     private \DateTimeInterface $assignedAt;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 2000, maxMessage: 'Las notas no pueden tener más de 2000 caracteres')]
     private ?string $notes;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -63,6 +69,7 @@ class Assignment
     public function setActivity(Activity $activity): self
     {
         $this->activity = $activity;
+
         return $this;
     }
 
@@ -74,6 +81,7 @@ class Assignment
     public function setTechnician(User $technician): self
     {
         $this->technician = $technician;
+
         return $this;
     }
 
@@ -85,6 +93,7 @@ class Assignment
     public function setAssignedBy(User $assignedBy): self
     {
         $this->assignedBy = $assignedBy;
+
         return $this;
     }
 
@@ -96,6 +105,7 @@ class Assignment
     public function setAssignedAt(\DateTimeInterface $assignedAt): self
     {
         $this->assignedAt = $assignedAt;
+
         return $this;
     }
 
@@ -107,6 +117,7 @@ class Assignment
     public function setNotes(?string $notes): self
     {
         $this->notes = $notes;
+
         return $this;
     }
 
@@ -118,6 +129,7 @@ class Assignment
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -129,6 +141,7 @@ class Assignment
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 

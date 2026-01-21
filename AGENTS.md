@@ -10,6 +10,7 @@
       - ✅ Servicios (Api, Auth, Activity, Assignment)
       - ✅ Auth Guard y Auth Interceptor
       - ✅ Componentes Navbar y Login
-      - ✅ Componentes placeholder (Dashboard, Activities, Users)
-      - 🔄 Implementar componentes funcionales (pendiente)
+      - ✅ Componentes funcionales (Dashboard, ActivitiesList)
+      - ✅ Componentes placeholder (ActivityDetail, MyAssignments, UsersList)
+      - 🔄 Implementar componentes funcionales restantes (pendiente)
     - 🔄 Notificaciones por email (pendiente)

@@ -1,0 +1,41 @@
+# Dependencias de Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de compilación Angular
+dist/
+.angular/
+.sass-cache/
+
+# Archivos de configuración con credenciales
+.env.local
+.env.*.local
+
+# Archivos IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de Symfony
+backend/vendor/
+backend/var/cache/*
+backend/var/log/*
+backend/var/sessions/*
+backend/bin/.phpunit.result.cache
+
+# Claves JWT
+backend/config/jwt/*.pem
+
+# Archivos de base de datos
+backend/var/data_*.db
+
+# Archivos de logs
+*.log

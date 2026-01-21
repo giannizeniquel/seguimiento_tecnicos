@@ -460,7 +460,7 @@ CREATE TABLE notifications (
 - `isActive` - Filtrar por estado (true/false)
 - `search` - Buscar por nombre o email
 
-### Actividades
+### Actividades ✅
 - `GET /api/activities` - Listar actividades
 - `POST /api/activities` - Crear actividad
 - `GET /api/activities/{id}` - Obtener actividad
@@ -468,6 +468,21 @@ CREATE TABLE notifications (
 - `DELETE /api/activities/{id}` - Eliminar actividad
 - `POST /api/activities/{id}/start` - Iniciar actividad
 - `POST /api/activities/{id}/complete` - Completar actividad
+- `POST /api/activities/{id}/cancel` - Cancelar actividad
+
+### Asignaciones ✅
+- `GET /api/assignments` - Listar asignaciones (Admin, Coordinator, Technician)
+- `POST /api/assignments` - Crear asignación (Admin, Coordinator)
+- `GET /api/assignments/{id}` - Ver asignación (Admin, Coordinator, Technician: solo propias)
+- `PUT /api/assignments/{id}` - Actualizar notas (Admin, Coordinator)
+- `DELETE /api/assignments/{id}` - Eliminar asignación (Solo Admin)
+
+**Filtros para GET /api/assignments:**
+- `activity_id` - Filtrar por actividad
+- `technician_id` - Filtrar por técnico
+- `assigned_by` - Filtrar por quien asignó
+- `date_from` - Fecha desde
+- `date_to` - Fecha hasta
 
 ---
 

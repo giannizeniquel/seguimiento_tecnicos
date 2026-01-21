@@ -244,11 +244,19 @@ SES_FROM_NAME=<from_name>
 - `POST /api/activities/{id}/complete` - Completar actividad
 - `POST /api/activities/{id}/cancel` - Cancelar actividad
 
-### Asignaciones
-- `GET /api/assignments` - Listar asignaciones
-- `POST /api/assignments` - Crear asignación
-- `PUT /api/assignments/{id}` - Actualizar asignación
-- `DELETE /api/assignments/{id}` - Eliminar asignación
+### Asignaciones ✅
+- `GET /api/assignments` - Listar asignaciones (Admin, Coordinator, Technician)
+- `POST /api/assignments` - Crear asignación (Admin, Coordinator)
+- `GET /api/assignments/{id}` - Ver asignación (Admin, Coordinator, Technician: solo propias)
+- `PUT /api/assignments/{id}` - Actualizar notas (Admin, Coordinator)
+- `DELETE /api/assignments/{id}` - Eliminar asignación (Solo Admin)
+
+**Filtros para GET /api/assignments:**
+- `activity_id` - Filtrar por actividad
+- `technician_id` - Filtrar por técnico
+- `assigned_by` - Filtrar por quien asignó
+- `date_from` - Fecha desde
+- `date_to` - Fecha hasta
 
 ---
 
@@ -302,7 +310,7 @@ npm run build:pwa
     - ✅ Implementar autenticación JWT
     - ✅ CRUD de usuarios (UserController)
     - ✅ CRUD de actividades (ActivityController)
-    - 🔄 Sistema de asignaciones (AssignmentController - pendiente)
+    - ✅ Sistema de asignaciones (AssignmentController)
     - 🔄 Registro de tiempos (actividades)
     - 🔄 Notificaciones por email (NotificationService - pendiente)
 

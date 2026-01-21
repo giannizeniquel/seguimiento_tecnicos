@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from '../core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -8,33 +9,38 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./app/features/auth/pages/login/login.component')
+    loadComponent: () => import('../features/auth/pages/login/login.component')
       .then(m => m.LoginComponent)
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./app/features/dashboard/pages/dashboard/dashboard.component')
-      .then(m => m.DashboardComponent)
+    loadComponent: () => import('../features/dashboard/pages/dashboard/dashboard.component')
+      .then(m => m.DashboardComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'activities',
-    loadComponent: () => import('./app/features/activities/pages/activities-list/activities-list.component')
-      .then(m => m.ActivitiesListComponent)
+    loadComponent: () => import('../features/activities/pages/activities-list/activities-list.component')
+      .then(m => m.ActivitiesListComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'activities/:id',
-    loadComponent: () => import('./app/features/activities/pages/activity-detail/activity-detail.component')
-      .then(m => m.ActivityDetailComponent)
+    loadComponent: () => import('../features/activities/pages/activity-detail/activity-detail.component')
+      .then(m => m.ActivityDetailComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'my-assignments',
-    loadComponent: () => import('./app/features/activities/pages/my-assignments/my-assignments.component')
-      .then(m => m.MyAssignmentsComponent)
+    loadComponent: () => import('../features/activities/pages/my-assignments/my-assignments.component')
+      .then(m => m.MyAssignmentsComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'users',
-    loadComponent: () => import('./app/features/users/pages/users-list/users-list.component')
-      .then(m => m.UsersListComponent)
+    loadComponent: () => import('../features/users/pages/users-list/users-list.component')
+      .then(m => m.UsersListComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: '**',

@@ -311,7 +311,8 @@ npm run build:pwa
     - ✅ CRUD de usuarios (UserController)
     - ✅ CRUD de actividades (ActivityController)
     - ✅ Sistema de asignaciones (AssignmentController)
-    - 🔄 Registro de tiempos (actividades)
+    - ✅ Validaciones Symfony Validator en entidades
+    - ✅ Registro de tiempos (actividades)
     - 🔄 Notificaciones por email (NotificationService - pendiente)
 
 3. **Fase 2: Dashboard y Reportes**

@@ -220,20 +220,21 @@ SES_FROM_NAME=<from_name>
 
 ## 📡 Endpoints de API (Planificado)
 
-### Autenticación
+### Autenticación ✅
 - `POST /api/auth/login` - Iniciar sesión
-- `POST /api/auth/refresh` - Refrescar token
+- `POST /api/auth/refresh` - Refrescar token (pendiente implementación)
 - `POST /api/auth/logout` - Cerrar sesión
 - `GET /api/auth/me` - Obtener información del usuario actual
 
-### Usuarios
-- `GET /api/users` - Listar usuarios
-- `POST /api/users` - Crear usuario
-- `GET /api/users/{id}` - Obtener usuario
-- `PUT /api/users/{id}` - Actualizar usuario
-- `DELETE /api/users/{id}` - Eliminar usuario
+### Usuarios ✅
+- `GET /api/users` - Listar usuarios (Admin, Coordinator)
+- `POST /api/users` - Crear usuario (Solo Admin)
+- `GET /api/users/{id}` - Obtener usuario (Admin, Coordinator)
+- `PUT /api/users/{id}` - Actualizar usuario (Admin: todo, Coordinator: limitado)
+- `DELETE /api/users/{id}` - Eliminar usuario (Solo Admin)
+- `PUT /api/users/{id}/toggle-active` - Activar/desactivar usuario (Solo Admin)
 
-### Actividades
+### Actividades ✅
 - `GET /api/activities` - Listar actividades
 - `POST /api/activities` - Crear actividad
 - `GET /api/activities/{id}` - Obtener actividad
@@ -241,6 +242,7 @@ SES_FROM_NAME=<from_name>
 - `DELETE /api/activities/{id}` - Eliminar actividad
 - `POST /api/activities/{id}/start` - Iniciar actividad
 - `POST /api/activities/{id}/complete` - Completar actividad
+- `POST /api/activities/{id}/cancel` - Cancelar actividad
 
 ### Asignaciones
 - `GET /api/assignments` - Listar asignaciones
@@ -289,35 +291,35 @@ npm run build:pwa
 
 ## 🔄 Flujo de Trabajo de Desarrollo
 
-1. **Configuración Inicial** (Fase Actual)
-   - ✅ Verificar herramientas disponibles
-   - ✅ Crear estructura de directorios
-   - ✅ Configurar Symfony 7 backend
-   - 🔄 Configurar Angular 17 frontend
-   - 📝 Crear documentación
+1. **Configuración Inicial** ✅
+    - ✅ Verificar herramientas disponibles
+    - ✅ Crear estructura de directorios
+    - ✅ Configurar Symfony 7 backend
+    - ✅ Configurar Git
+    - ✅ Crear documentación
 
-2. **Fase 1: MVP Básico**
-   - Implementar autenticación JWT
-   - CRUD de usuarios
-   - CRUD de actividades
-   - Sistema de asignaciones
-   - Registro de tiempos
-   - Notificaciones por email
+2. **Fase 1: MVP Básico** (En progreso)
+    - ✅ Implementar autenticación JWT
+    - ✅ CRUD de usuarios (UserController)
+    - ✅ CRUD de actividades (ActivityController)
+    - 🔄 Sistema de asignaciones (AssignmentController - pendiente)
+    - 🔄 Registro de tiempos (actividades)
+    - 🔄 Notificaciones por email (NotificationService - pendiente)
 
 3. **Fase 2: Dashboard y Reportes**
-   - Dashboard con KPIs
-   - Gráficos de tiempo real vs programado
-   - Reportes por técnico
-   - Reportes por período
+    - Dashboard con KPIs
+    - Gráficos de tiempo real vs programado
+    - Reportes por técnico
+    - Reportes por período
 
 4. **Fase 3: Fotos y Exportaciones**
-   - Subida de imágenes
-   - Galería de fotos
-   - Exportación a CSV/PDF
+    - Subida de imágenes
+    - Galería de fotos
+    - Exportación a CSV/PDF
 
 5. **Fase 4: Notificaciones Push**
-   - Web Push API
-   - Notificaciones en tiempo real
+    - Web Push API
+    - Notificaciones en tiempo real
    - Permisos de notificaciones
 
 ---

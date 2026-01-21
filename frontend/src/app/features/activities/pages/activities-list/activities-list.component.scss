@@ -1,1 +1,13 @@
-.activities-list-component {}
+@use 'bootstrap/scss/bootstrap';
+
+.activities-list-component {
+  .table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+  }
+}

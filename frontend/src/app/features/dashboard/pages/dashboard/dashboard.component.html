@@ -1,4 +1,176 @@
-<div class="text-center mt-5">
-  <h1>Dashboard</h1>
-  <p class="text-muted">Bienvenido al Sistema de Seguimiento de Técnicos</p>
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h3">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+      </h1>
+      <p class="text-muted">Bienvenido/a, {{ currentUser?.name || 'Usuario' }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-12 col-md-3">
+        <div class="card bg-warning text-white mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Pendientes</h5>
+            <h2 class="display-4">
+              <i class="bi bi-clock"></i>
+              {{ stats.pending }}
+            </h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card bg-info text-white mb-3">
+          <div class="card-body">
+            <h5 class="card-title">En Progreso</h5>
+            <h2 class="display-4">
+              <i class="bi bi-hourglass-split"></i>
+              {{ stats.inProgress }}
+            </h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card bg-success text-white mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Completadas</h5>
+            <h2 class="display-4">
+              <i class="bi bi-check-circle"></i>
+              {{ stats.completed }}
+            </h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card bg-danger text-white mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Canceladas</h5>
+            <h2 class="display-4">
+              <i class="bi bi-x-circle"></i>
+              {{ stats.cancelled }}
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="bi bi-lightning-charge"></i>
+              Acciones Rápidas
+            </h5>
+            <div class="row mt-3">
+              <div class="col-md-3 mb-3" *ngIf="currentUser?.role !== 'TECHNICIAN'">
+                <button class="btn btn-primary w-100" [routerLink]="'/activities'">
+                  <i class="bi bi-plus-circle"></i>
+                  Nueva Actividad
+                </button>
+              </div>
+              <div class="col-md-3 mb-3">
+                <button class="btn btn-success w-100" [routerLink]="'/my-assignments'">
+                  <i class="bi bi-list-task"></i>
+                  Mis Asignaciones
+                </button>
+              </div>
+              <div class="col-md-3 mb-3" *ngIf="currentUser?.role !== 'TECHNICIAN'">
+                <button class="btn btn-info w-100" [routerLink]="'/activities'">
+                  <i class="bi bi-people"></i>
+                  Ver Técnicos
+                </button>
+              </div>
+              <div class="col-md-3 mb-3">
+                <button class="btn btn-secondary w-100" [routerLink]="'/users'" *ngIf="currentUser?.role === 'ADMIN'">
+                  <i class="bi bi-person-gear"></i>
+                  Gestionar Usuarios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="bi bi-clock-history"></i>
+              Actividades Recientes
+            </h5>
+            <div *ngIf="recentActivities.length === 0" class="text-center text-muted py-4">
+              <i class="bi bi-inbox"></i>
+              <p>No hay actividades recientes</p>
+            </div>
+            <div *ngIf="recentActivities.length > 0" class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let activity of recentActivities">
+                    <td>
+                      <span class="fw-bold">{{ activity.title }}</span>
+                      @if (activity.locationAddress) {
+                        <small class="text-muted d-block">
+                          <i class="bi bi-geo-alt"></i>
+                          {{ activity.locationAddress }}
+                        </small>
+                      }
+                    </td>
+                    <td>
+                      <span [class]="'badge rounded-pill ' + getStatusBadgeClass(activity.status)">
+                        <i [class]="'bi ' + getStatusIcon(activity.status)"></i>
+                        {{ activity.status === 'IN_PROGRESS' ? 'En Progreso' : 
+                               activity.status === 'COMPLETED' ? 'Completada' :
+                               activity.status === 'CANCELLED' ? 'Cancelada' : 'Pendiente' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span [class]="'badge rounded-pill ' + getPriorityBadgeClass(activity.priority)">
+                        {{ activity.priority }}
+                      </span>
+                    </td>
+                    <td>{{ activity.scheduledStart | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary" (click)="goToActivity(activity.id)">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div *ngIf="recentActivities.length > 0" class="text-center mt-3">
+              <button class="btn btn-outline-primary" [routerLink]="'/activities'">
+                <i class="bi bi-arrow-right-circle"></i>
+                Ver Todas las Actividades
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

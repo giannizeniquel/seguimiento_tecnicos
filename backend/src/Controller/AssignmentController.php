@@ -33,14 +33,42 @@ class AssignmentController extends AbstractController
     public function list(Request $request, UserInterface $user): JsonResponse
     {
         $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
-
+        
         $filters = $request->query->all();
         $qb = $this->assignmentRepository->createQueryBuilder('a')
-            ->leftJoin('a.activity', 'activity')
-            ->leftJoin('a.technician', 'technician')
-            ->leftJoin('a.assignedBy', 'assignedBy')
-            ->addSelect('activity', 'technician', 'assignedBy')
-            ->orderBy('a.assignedAt', 'DESC');
+             ->leftJoin('a.activity', 'activity')
+             ->leftJoin('a.technician', 'technician')
+             ->leftJoin('a.assignedBy', 'assignedBy')
+             ->addSelect('a', 'technician', 'assignedBy')
+             ->orderBy('a.assignedAt', 'DESC');
+        
+        if (is_array($filters) && !empty($filters)) {
+            foreach ($filters as $key => $value) {
+                if ($key === 'activity_id') {
+                    $qb->andWhere('a.activity = :activityId')
+                        ->setParameter('activityId', $value);
+                } elseif ($key === 'technician_id') {
+                    $qb->andWhere('a.technician = :technicianId')
+                        ->setParameter('technicianId', $value);
+                } elseif ($key === 'assigned_by') {
+                    $qb->andWhere('a.assignedBy = :assignedBy')
+                        ->setParameter('assignedBy', $value);
+                } elseif ($key === 'date_from') {
+                    $qb->andWhere('a.assignedAt >= :dateFrom')
+                        ->setParameter('dateFrom', new \DateTime($value));
+                } elseif ($key === 'date_to') {
+                    $qb->andWhere('a.assignedAt <= :dateTo')
+                        ->setParameter('dateTo', new \DateTime($value));
+                }
+            }
+        }
+        
+        if ($currentUser && 'TECHNICIAN' === $currentUser->getRole()) {
+            $qb->andWhere('a.technician = :user')
+                ->setParameter('user', $currentUser->getId());
+        }
+        
+        $assignments = $qb->getQuery()->getResult();
 
         if (isset($filters['activity_id'])) {
             $qb->andWhere('a.activity = :activityId')

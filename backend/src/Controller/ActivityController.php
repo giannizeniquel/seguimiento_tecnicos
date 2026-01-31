@@ -267,8 +267,8 @@ class ActivityController extends AbstractController
         return new JsonResponse(['message' => 'Activity deleted successfully']);
     }
 
-    #[Route('/{id}/start', name: 'activity_start', methods: ['POST'])]
-    public function start(string $id, UserInterface $user): JsonResponse
+    #[Route('/{id}/assign', name: 'activity_assign', methods: ['POST', 'DELETE'])]
+    public function assign(string $id, Request $request, UserInterface $user): JsonResponse
     {
         $activity = $this->activityRepository->find($id);
 
@@ -276,117 +276,82 @@ class ActivityController extends AbstractController
             return new JsonResponse(['error' => 'Activity not found'], 404);
         }
 
-        // Obtener usuario completo para verificar permisos
         $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
 
-        // Solo técnico asignado puede iniciar
-        if (!$currentUser || $currentUser->getRole() !== 'TECHNICIAN' || $activity->getAssignedTo() !== $currentUser) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+        if ($request->isMethod('POST')) {
+            if (!$currentUser || !in_array($currentUser->getRole(), ['ADMIN', 'COORDINATOR'])) {
+                return new JsonResponse(['error' => 'Access denied'], 403);
+            }
+
+            $data = json_decode($request->getContent(), true);
+            $technician = $this->userRepository->find($data['technicianId'] ?? '');
+
+            if (!$technician) {
+                return new JsonResponse(['error' => 'Technician not found'], 404);
+            }
+
+            if ($technician->getRole() !== 'TECHNICIAN') {
+                return new JsonResponse(['error' => 'User is not a technician'], 422);
+            }
+
+            if (in_array($activity->getStatus(), [Activity::STATUS_COMPLETED, Activity::STATUS_CANCELLED])) {
+                return new JsonResponse(['error' => 'Cannot assign to completed or cancelled activity'], 422);
+            }
+
+            $existingAssignment = $this->entityManager->getRepository(Assignment::class)
+                ->createQueryBuilder('a')
+                ->where('a.activity = :activityId')
+                ->setParameter('activityId', $activity->getId())
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($existingAssignment) {
+                $activity->setAssignedTo($technician);
+                $this->entityManager->flush();
+                return new JsonResponse($this->serializeActivity($activity));
+            }
+
+            $assignment = new Assignment();
+            $assignment->setActivity($activity);
+            $assignment->setTechnician($technician);
+            $assignment->setAssignedBy($currentUser);
+            $assignment->setNotes($data['assignmentNotes'] ?? null);
+
+            $this->entityManager->persist($assignment);
+            $activity->setAssignedTo($technician);
+            $this->entityManager->flush();
+
+            return new JsonResponse($this->serializeActivity($activity));
         }
 
-        if ($activity->getStatus() !== Activity::STATUS_PENDING) {
-            return new JsonResponse(['error' => 'Activity cannot be started'], 400);
+        if ($request->isMethod('DELETE')) {
+            if (!$currentUser || !in_array($currentUser->getRole(), ['ADMIN', 'COORDINATOR'])) {
+                return new JsonResponse(['error' => 'Access denied'], 403);
+            }
+
+            $assignment = $this->entityManager->getRepository(Assignment::class)
+                ->createQueryBuilder('a')
+                ->where('a.activity = :activityId')
+                ->setParameter('activityId', $activity->getId())
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if (!$assignment) {
+                return new JsonResponse(['error' => 'Assignment not found'], 404);
+            }
+
+            if (in_array($activity->getStatus(), [Activity::STATUS_IN_PROGRESS, Activity::STATUS_COMPLETED])) {
+                return new JsonResponse(['error' => 'Cannot unassign activity in progress or completed'], 422);
+            }
+
+            $this->entityManager->remove($assignment);
+            $activity->setAssignedTo(null);
+            $this->entityManager->flush();
+
+            return new JsonResponse(['message' => 'Assignment removed successfully']);
         }
 
-        $oldData = $this->serializeActivity($activity);
-        $activity->setStatus(Activity::STATUS_IN_PROGRESS);
-        $activity->setActualStart(new \DateTime());
-
-        $this->entityManager->flush();
-
-        // Crear log de actividad
-        $log = new ActivityLog();
-        $log->setActivity($activity);
-        $log->setUser($user);
-        $log->setAction(ActivityLog::ACTION_STATUS_CHANGED);
-        $log->setOldValue($oldData);
-        $log->setNewValue($this->serializeActivity($activity));
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-        return new JsonResponse($this->serializeActivity($activity));
-    }
-
-    #[Route('/{id}/complete', name: 'activity_complete', methods: ['POST'])]
-    public function complete(string $id, Request $request, UserInterface $user): JsonResponse
-    {
-        $activity = $this->activityRepository->find($id);
-
-        if (!$activity) {
-            return new JsonResponse(['error' => 'Activity not found'], 404);
-        }
-
-        // Obtener usuario completo para verificar permisos
-        $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
-
-        // Solo técnico asignado puede completar
-        if (!$currentUser || $currentUser->getRole() !== 'TECHNICIAN' || $activity->getAssignedTo() !== $currentUser) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        if ($activity->getStatus() !== Activity::STATUS_IN_PROGRESS) {
-            return new JsonResponse(['error' => 'Activity cannot be completed'], 400);
-        }
-
-        $oldData = $this->serializeActivity($activity);
-        $activity->setStatus(Activity::STATUS_COMPLETED);
-        $activity->setActualEnd(new \DateTime());
-
-        $this->entityManager->flush();
-
-        // Crear log de actividad
-        $log = new ActivityLog();
-        $log->setActivity($activity);
-        $log->setUser($currentUser);
-        $log->setAction(ActivityLog::ACTION_STATUS_CHANGED);
-        $log->setOldValue($oldData);
-        $log->setNewValue($this->serializeActivity($activity));
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-        return new JsonResponse($this->serializeActivity($activity));
-    }
-
-    #[Route('/{id}/cancel', name: 'activity_cancel', methods: ['POST'])]
-    public function cancel(string $id, Request $request, UserInterface $user): JsonResponse
-    {
-        $activity = $this->activityRepository->find($id);
-
-        if (!$activity) {
-            return new JsonResponse(['error' => 'Activity not found'], 404);
-        }
-
-        // Obtener usuario completo para verificar permisos
-        $currentUser = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
-
-        // Solo admin y coordinador pueden cancelar
-        if (!$currentUser || !in_array($currentUser->getRole(), ['ADMIN', 'COORDINATOR'])) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        if (in_array($activity->getStatus(), [Activity::STATUS_COMPLETED, Activity::STATUS_CANCELLED])) {
-            return new JsonResponse(['error' => 'Activity cannot be cancelled'], 400);
-        }
-
-        $oldData = $this->serializeActivity($activity);
-        $activity->setStatus(Activity::STATUS_CANCELLED);
-
-        $this->entityManager->flush();
-
-        // Crear log de actividad
-        $log = new ActivityLog();
-        $log->setActivity($activity);
-        $log->setUser($user);
-        $log->setAction(ActivityLog::ACTION_STATUS_CHANGED);
-        $log->setOldValue($oldData);
-        $log->setNewValue($this->serializeActivity($activity));
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-        return new JsonResponse($this->serializeActivity($activity));
+        return new JsonResponse(['error' => 'Method not allowed'], 405);
     }
 
     private function serializeActivity(Activity $activity): array
@@ -402,18 +367,18 @@ class ActivityController extends AbstractController
             'actualStart' => $activity->getActualStart()?->format('Y-m-d H:i:s'),
             'actualEnd' => $activity->getActualEnd()?->format('Y-m-d H:i:s'),
             'locationAddress' => $activity->getLocationAddress(),
-            'createdBy' => [
+            'createdBy' => $activity->getCreatedBy() ? [
                 'id' => $activity->getCreatedBy()->getId(),
                 'name' => $activity->getCreatedBy()->getName(),
                 'email' => $activity->getCreatedBy()->getEmail()
-            ],
+            ] : null,
             'assignedTo' => $activity->getAssignedTo() ? [
                 'id' => $activity->getAssignedTo()->getId(),
                 'name' => $activity->getAssignedTo()->getName(),
                 'email' => $activity->getAssignedTo()->getEmail()
             ] : null,
-            'createdAt' => $activity->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updatedAt' => $activity->getUpdatedAt()->format('Y-m-d H:i:s')
+            'createdAt' => $activity->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'updatedAt' => $activity->getUpdatedAt()?->format('Y-m-d H:i:s')
         ];
     }
 }

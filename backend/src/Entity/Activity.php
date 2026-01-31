@@ -50,7 +50,7 @@ class Activity
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Assert\Type('DateTime', message: 'La fecha de fin programada no es válida')]
-    #[Assert\Expression(expression: 'this.scheduledEnd === null or this.scheduledEnd >= this.scheduledStart', message: 'La fecha de fin programada debe ser posterior a la fecha de inicio')]
+    #[Assert\Expression(expression: 'this.getScheduledEnd() === null or this.getScheduledEnd() >= this.getScheduledStart()', message: 'La fecha de fin programada debe ser posterior a la fecha de inicio')]
     private ?\DateTimeInterface $scheduledEnd;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -59,7 +59,7 @@ class Activity
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Assert\Type('DateTime', message: 'La fecha de fin real no es válida')]
-    #[Assert\Expression(expression: 'this.actualEnd === null or this.actualStart === null or this.actualEnd >= this.actualStart', message: 'La fecha de fin real debe ser posterior a la fecha de inicio real')]
+    #[Assert\Expression(expression: 'this.getActualEnd() === null or this.getActualStart() === null or this.getActualEnd() >= this.getActualStart()', message: 'La fecha de fin real debe ser posterior a la fecha de inicio real')]
     private ?\DateTimeInterface $actualEnd;
 
     #[ORM\Column(type: Types::STRING, length: 20)]
@@ -91,6 +91,12 @@ class Activity
         $this->id = Uuid::uuid4()->toString();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        $this->description = null;
+        $this->scheduledEnd = null;
+        $this->actualStart = null;
+        $this->actualEnd = null;
+        $this->locationAddress = null;
+        $this->assignedTo = null;
     }
 
     public function getId(): string

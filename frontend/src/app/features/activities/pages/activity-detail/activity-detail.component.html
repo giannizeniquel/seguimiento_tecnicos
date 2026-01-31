@@ -1,23 +1,80 @@
-<div class="container-fluid py-4">
-  <div class="row justify-content-center">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body text-center">
-          <h1>
-            <i class="bi bi-info-circle text-primary"></i>
-          </h1>
-          <h3>Detalle de Actividad</h3>
-          <p class="text-muted">Este componente se implementará próximamente.</p>
-          <p class="text-muted">Mostrará información detallada de una actividad específica, incluyendo:</p>
-          <ul class="list-unstyled text-start d-inline-block">
-            <li><i class="bi bi-check-circle text-success"></i> Información completa de la actividad</li>
-            <li><i class="bi bi-check-circle text-success"></i> Asignación de técnico</li>
-            <li><i class="bi bi-check-circle text-success"></i> Historial de cambios</li>
-            <li><i class="bi bi-check-circle text-success"></i> Posibilidad de iniciar/completar</li>
-            <li><i class="bi bi-check-circle text-success"></i> Observaciones y notas</li>
-          </ul>
-        </div>
-      </div>
+<div class="detail-page">
+  @if (isLoading) {
+  <div class="loading">
+    <i class='bx bx-loader-alt bx-spin'></i>
+    <span>Cargando...</span>
+  </div>
+  } @else if (errorMessage) {
+  <div class="alert-error">
+    <i class='bx bx-error'></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+  } @else if (activity || isNew) {
+  <div class="head-title">
+    <div class="left">
+      <h1>{{ isNew ? 'Nueva Actividad' : 'Detalle de Actividad' }}</h1>
+      <ul class="breadcrumb">
+        <li><a [routerLink]="['/activities']">Actividades</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">{{ isNew ? 'Nueva' : 'Detalle' }}</a></li>
+      </ul>
     </div>
   </div>
+
+  <div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>{{ isNew ? 'Crear Actividad' : 'Editar Actividad' }}</h3>
+      </div>
+      <form [formGroup]="activityForm" (ngSubmit)="saveActivity()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="title">Título</label>
+            <input type="text" id="title" formControlName="title" required>
+          </div>
+          <div class="form-group">
+            <label for="priority">Prioridad</label>
+            <select id="priority" formControlName="priority" required>
+              <option value="LOW">Baja</option>
+              <option value="MEDIUM">Media</option>
+              <option value="HIGH">Alta</option>
+              <option value="URGENT">Urgente</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label for="description">Descripción</label>
+            <textarea id="description" formControlName="description" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="scheduledStart">Inicio Programado</label>
+            <input type="datetime-local" id="scheduledStart" formControlName="scheduledStart" required>
+          </div>
+          <div class="form-group">
+            <label for="scheduledEnd">Fin Programado</label>
+            <input type="datetime-local" id="scheduledEnd" formControlName="scheduledEnd">
+          </div>
+          <div class="form-group full-width">
+            <label for="locationAddress">Ubicación</label>
+            <input type="text" id="locationAddress" formControlName="locationAddress">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="goBack()">
+            <i class='bx bx-x'></i>
+            <span>Volver</span>
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="isSubmitting || isFormInvalid">
+            @if (isSubmitting) {
+            <span><i class='bx bx-loader-alt bx-spin'></i> Guardando...</span>
+            } @else {
+            <span><i class='bx bx-save'></i> Guardar</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
 </div>
+

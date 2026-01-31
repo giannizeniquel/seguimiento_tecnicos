@@ -1,10 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ActivityService } from '../../../../core/services/activity.service';
-import { IActivity, ICreateActivityRequest } from '../../../../core/models';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -22,10 +20,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    @Inject(AuthService) private _authService: AuthService
+    private router: Router
   ) {
-    this.authService = _authService;
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -42,9 +38,13 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
+        console.log('Login - Full response:', response);
+        console.log('Login - Token:', response.token);
+        console.log('Login - User:', response.user);
         this.authService.saveToken(response.token);
         this.authService.setCurrentUser(response.user);
         localStorage.setItem('user', JSON.stringify(response.user));
+        console.log('Login - User saved to localStorage:', localStorage.getItem('user'));
         this.isLoading = false;
         this.router.navigate(['/dashboard']);
       },

@@ -181,6 +181,62 @@ npm run build
 
 ---
 
+## 💻 Desarrollo con WSL2
+
+### Configuración de WSL2 en modo mirrored
+
+Para acceder a los servidores de desarrollo usando `localhost` desde Windows, WSL debe estar configurado en modo `mirrored`.
+
+**Configurar `/etc/wsl.conf`:**
+```bash
+echo '[boot]
+systemd=true
+
+[wsl2]
+networkingMode=mirrored
+firewall=false
+hostAddressLoopback=true' | sudo tee /etc/wsl.conf
+```
+
+**Reiniciar WSL:**
+```powershell
+# Desde PowerShell como ADMINISTRADOR
+wsl --shutdown
+```
+
+**Levantar servidores:**
+
+**Backend (Symfony):**
+```bash
+cd backend
+symfony server:start --port=8001
+```
+
+**Frontend (Angular):**
+```bash
+cd frontend
+ng serve --host 0.0.0.0 --port 4201
+```
+
+**Acceder desde Windows:**
+
+| Servicio | Desde WSL | Desde Windows |
+|----------|-----------|--------------|
+| Backend | http://127.0.0.1:8001 | http://127.0.0.1:8001 |
+| Frontend | http://127.0.0.1:4201 | http://127.0.0.1:4201 |
+
+**Configuración de Angular:**
+
+El archivo `frontend/src/environments/environment.ts` debe tener:
+```typescript
+export const environment = {
+  production: false,
+  apiBaseUrl: 'http://127.0.0.1:8001/api'
+};
+```
+
+---
+
 ## 🔐 Configuración de Seguridad
 
 ### JWT Configuration
@@ -275,6 +331,9 @@ php bin/console cache:clear
 
 # Ver rutas disponibles
 php bin/console debug:router
+
+# Cargar datos de prueba
+php bin/console app:load-test-data
 ```
 
 ### Frontend (npm)
@@ -364,6 +423,62 @@ npm run build:pwa
 
 ---
 
+## 🔑 Credenciales por Defecto
+
+### Usuario Administrador
+Las credenciales del usuario administrador se pueden crear ejecutando el comando:
+```bash
+cd backend
+php bin/console app:create-admin
+```
+
+| Campo | Valor |
+|-------|-------|
+| **Email** | admin@demo.com |
+| **Contraseña** | admin123 |
+| **Rol** | ADMIN |
+
+> **Nota**: Este comando verifica si el usuario ya existe antes de crearlo.
+
+### Crear Usuarios Adicionales
+Puedes crear usuarios adicionales a través de la API:
+```bash
+# POST /api/users
+{
+  "email": "tecnico1@demo.com",
+  "password": "password123",
+  "name": "Técnico Ejemplo",
+  "role": "TECHNICIAN",
+  "phone": "3007654321"
+}
+```
+
+### Datos de Prueba (Demo)
+Para cargar datos de prueba en la base de datos, ejecuta:
+```bash
+cd backend
+php bin/console app:load-test-data
+```
+
+Este comando crea:
+
+**Usuarios:**
+| Email | Contraseña | Rol | Nombre |
+|-------|-----------|------|--------|
+| coordinador@demo.com | coord123 | COORDINATOR | Coordinador Principal |
+| tecnico1@demo.com | tecnico123 | TECHNICIAN | Juan Pérez |
+| tecnico2@demo.com | tecnico123 | TECHNICIAN | María García |
+| tecnico3@demo.com | tecnico123 | TECHNICIAN | Carlos López |
+| tecnico4@demo.com | tecnico123 | TECHNICIAN | Ana Rodríguez |
+| tecnico5@demo.com | tecnico123 | TECHNICIAN | Pedro Sánchez |
+
+**Actividades:**
+- 6 actividades con diferentes prioridades y estados
+- Asignaciones a técnicos específicos
+- Una actividad sin asignar para pruebas
+
+---
+
 ## 🐛 Solución de Problemas Comunes
 
 ### Errores de conexión a la base de datos
@@ -398,8 +513,18 @@ Para preguntas o problemas, contactar con el equipo de desarrollo.
 
 | Fecha | Versión | Cambio | Autor |
 |-------|---------|--------|-------|
+| 22/01/2026 | 1.0.1 | Implementación de componentes: ActivityDetail, MyAssignments, estilos actualizados, comando de datos de prueba | - |
 | 21/01/2026 | 1.0.0 | Creación inicial del proyecto y documentación | - |
 
 ---
 
-**Última actualización**: 21 de Enero de 2026
+## 🧭 Notas de Desarrollo Recientes
+- Frontend: se añadió sincronización reactiva del usuario actual mediante AuthService.currentUser$ para mantener permisos UI en tiempo real en ActivitiesList, UsersList y ActivityDetail.
+- Backend-Frontend: el flujo de permisos UI coincide con reglas de backend (Admin/Coordinator) y se implementó verificación de permisos para crear nuevas actividades desde el frontend, mostrando alerta si no permitido.
+- Lifecycle: se agregaron OnDestroy para limpiar suscripciones y evitar memory leaks.
+- Diseño: se adoptaron Boxicons y CSS variables para el nuevo diseño; el botón de crear actividad ahora respeta permisos.
+- Datos de prueba: LoadTestDataCommand disponible y utilizado para poblar la base de datos durante pruebas.
+
+---
+
+**Última actualización**: 22 de Enero de 2026

@@ -1,29 +1,36 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { IUser } from '../../../core/models';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
+  @Output() sidebarToggle = new EventEmitter<void>();
+
   currentUser: IUser | null = null;
-  isMenuOpen = false;
+  notificationMenuOpen = false;
+  profileMenuOpen = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    @Inject(AuthService) private _authService: AuthService
+    private elementRef: ElementRef
   ) {
-    this.authService = _authService;
     this.currentUser = this.authService.getCurrentUserValue();
-    this.authService.currentUser$.subscribe((user: IUser | null) => {
-      this.currentUser = user;
+    this.authService.currentUser$.subscribe({
+      next: (user: IUser | null) => {
+        this.currentUser = user;
+      },
+      error: (error) => {
+        console.error('Error getting current user', error);
+      }
     });
   }
 
@@ -34,11 +41,30 @@ export class NavbarComponent {
     });
   }
 
-  toggleMenu(): void {
-    this.isMenuOpen = !this.isMenuOpen;
+  toggleSidebar(): void {
+    this.sidebarToggle.emit();
   }
 
-  closeMenu(): void {
-    this.isMenuOpen = false;
+  toggleNotificationMenu(): void {
+    this.notificationMenuOpen = !this.notificationMenuOpen;
+    this.profileMenuOpen = false;
+  }
+
+  toggleProfileMenu(): void {
+    this.profileMenuOpen = !this.profileMenuOpen;
+    this.notificationMenuOpen = false;
+  }
+
+  toggleDarkMode(): void {
+    document.body.classList.toggle('dark');
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.notificationMenuOpen = false;
+      this.profileMenuOpen = false;
+    }
   }
 }
+

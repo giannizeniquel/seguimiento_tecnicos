@@ -5,12 +5,14 @@
     - ✅ Sistema de asignaciones (AssignmentController)
     - ✅ Validaciones Symfony Validator en entidades
     - ✅ Registro de tiempos (actividades)
-    - 🔄 Frontend Angular - Estructura base
+    - ✅ Frontend Angular - Estructura base
       - ✅ Modelos TypeScript (User, Activity, Assignment)
-      - ✅ Servicios (Api, Auth, Activity, Assignment)
+      - ✅ Servicios (Api, Auth, Activity, Assignment, UserService)
       - ✅ Auth Guard y Auth Interceptor
       - ✅ Componentes Navbar y Login
       - ✅ Componentes funcionales (Dashboard, ActivitiesList)
-      - ✅ Componentes placeholder (ActivityDetail, MyAssignments, UsersList)
-      - 🔄 Implementar componentes funcionales restantes (pendiente)
+      - ✅ Componentes funcionales (ActivityDetail, MyAssignments, UsersList)
+      - ✅ Estilos actualizados al nuevo diseño (Boxicons + CSS variables)
+      - ✅ Configuración CORS (nelmio/cors-bundle)
+      - ✅ Comando de datos de prueba (LoadTestDataCommand)
     - 🔄 Notificaciones por email (pendiente)

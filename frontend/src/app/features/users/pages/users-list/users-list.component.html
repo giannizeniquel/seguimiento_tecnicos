@@ -1,25 +1,336 @@
-<div class="container-fluid py-4">
-  <div class="row justify-content-center">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body text-center">
-          <h1>
-            <i class="bi bi-people text-primary"></i>
-          </h1>
-          <h3>Gestión de Usuarios</h3>
-          <p class="text-muted">Este componente se implementará próximamente.</p>
-          <p class="text-muted">Permitirá a administradores y coordinadores:</p>
-          <ul class="list-unstyled text-start d-inline-block">
-            <li><i class="bi bi-check-circle text-success"></i> Ver lista de todos los usuarios</li>
-            <li><i class="bi bi-check-circle text-success"></i> Crear nuevo usuario</li>
-            <li><i class="bi bi-check-circle text-success"></i> Editar usuario existente</li>
-            <li><i class="bi bi-check-circle text-success"></i> Activar/desactivar usuario</li>
-            <li><i class="bi bi-check-circle text-success"></i> Eliminar usuario</li>
-            <li><i class="bi bi-check-circle text-success"></i> Cambiar rol de usuario</li>
-            <li><i class="bi bi-check-circle text-success"></i> Ver filtros por rol y estado</li>
-          </ul>
+<div class="users-page">
+  <div class="head-title">
+    <div class="left">
+      <h1>Gestión de Usuarios</h1>
+      <ul class="breadcrumb">
+        <li><a href="#">Dashboard</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">Usuarios</a></li>
+      </ul>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" (click)="toggleFilters()">
+        <i class='bx bx-filter'></i>
+        <span>{{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}</span>
+      </button>
+      @if (canCreateUser()) {
+      <button class="btn-primary" (click)="openCreateModal()">
+        <i class='bx bx-plus'></i>
+        <span>Nuevo Usuario</span>
+      </button>
+      }
+    </div>
+  </div>
+
+  <div class="info-boxes">
+    <div class="info-box">
+      <i class='bx bx-group'></i>
+      <div class="text">
+        <h3>{{ stats.total }}</h3>
+        <p>Total Usuarios</p>
+      </div>
+    </div>
+    <div class="info-box admin">
+      <i class='bx bx-shield-quarter'></i>
+      <div class="text">
+        <h3>{{ stats.admin }}</h3>
+        <p>Administradores</p>
+      </div>
+    </div>
+    <div class="info-box coordinator">
+      <i class='bx bx-cog'></i>
+      <div class="text">
+        <h3>{{ stats.coordinator }}</h3>
+        <p>Coordinadores</p>
+      </div>
+    </div>
+    <div class="info-box technician">
+      <i class='bx bx-wrench'></i>
+      <div class="text">
+        <h3>{{ stats.technician }}</h3>
+        <p>Técnicos</p>
+      </div>
+    </div>
+    <div class="info-box active">
+      <i class='bx bx-user-check'></i>
+      <div class="text">
+        <h3>{{ stats.active }}</h3>
+        <p>Activos</p>
+      </div>
+    </div>
+    <div class="info-box inactive">
+      <i class='bx bx-user-x'></i>
+      <div class="text">
+        <h3>{{ stats.inactive }}</h3>
+        <p>Inactivos</p>
+      </div>
+    </div>
+  </div>
+
+  @if (showFilters) {
+  <div class="filters-container">
+    <div class="filters-header">
+      <h3><i class='bx bx-funnel'></i> Filtros</h3>
+      <button class="btn-secondary" (click)="clearFilters()">
+        <i class='bx bx-x'></i>
+        Limpiar
+      </button>
+    </div>
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Rol</label>
+        <select formControlName="role" (change)="applyFilters()">
+          <option value="">Todos</option>
+          <option value="ADMIN">Administrador</option>
+          <option value="COORDINATOR">Coordinador</option>
+          <option value="TECHNICIAN">Técnico</option>
+          <option value="ATTENDEE">Acudiente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select formControlName="status" (change)="applyFilters()">
+          <option value="">Todos</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Buscar</label>
+        <div class="form-input">
+          <i class='bx bx-search'></i>
+          <input type="text" formControlName="search" placeholder="Buscar por nombre o email...">
         </div>
       </div>
     </div>
   </div>
+  }
+
+  @if (errorMessage) {
+  <div class="alert-error">
+    <i class='bx bx-error'></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+  }
+
+  @if (isLoading) {
+  <div class="loading">
+    <i class='bx bx-loader-alt bx-spin'></i>
+    <span>Cargando usuarios...</span>
+  </div>
+  }
+
+  @if (!isLoading) {
+  <div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Lista de Usuarios</h3>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers; track user.id) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <i class='bx bx-user-circle'></i>
+                  <span class="user-name">{{ user.name }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="text-muted">{{ user.email }}</span>
+              </td>
+              <td>
+                <span class="badge {{ getRoleBadgeClass(user.role) }}">
+                  {{ getRoleLabel(user.role) }}
+                </span>
+              </td>
+              <td>
+                @if (user.phone) {
+                <span><i class='bx bx-phone'></i> {{ user.phone }}</span>
+                }
+                @if (!user.phone) {
+                <span class="text-muted">-</span>
+                }
+              </td>
+              <td>
+                @if (user.isActive) {
+                <span class="status-active">
+                  <i class='bx bx-check-circle'></i>
+                  Activo
+                </span>
+                }
+                @if (!user.isActive) {
+                <span class="status-inactive">
+                  <i class='bx bx-x-circle'></i>
+                  Inactivo
+                </span>
+                }
+              </td>
+              <td>
+                <div class="actions-cell">
+                  @if (isEditAllowed(user)) {
+                  <button class="btn-icon" (click)="openEditModal(user)" title="Editar">
+                    <i class='bx bx-edit'></i>
+                  </button>
+                  }
+                  @if (canToggleActive()) {
+                  <button class="btn-icon" (click)="toggleActive(user.id)" title="Alternar estado">
+                    <i class='bx bx-sync'></i>
+                  </button>
+                  }
+                  @if (isDeleteAllowed(user)) {
+                  <button class="btn-icon btn-danger" (click)="deleteUser(user.id)" title="Eliminar">
+                    <i class='bx bx-trash'></i>
+                  </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center">No se encontraron usuarios</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+
+<app-modal-dialog [open]="showCreateModal" (close)="closeCreateModal()" title="Crear Nuevo Usuario">
+  <form [formGroup]="createForm" (ngSubmit)="createUser()">
+    <div class="form-group">
+      <label>Email *</label>
+      <input type="email" formControlName="email" placeholder="ejemplo@.com">
+      @if (createForm.get('email')?.errors?.['required']) {
+      <span class="error-msg">El email es obligatorio</span>
+      }
+      @if (createForm.get('email')?.errors?.['email']) {
+      <span class="error-msg">Email inválido</span>
+      }
+    </div>
+    <div class="form-group">
+      <label>Contraseña *</label>
+      <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres">
+      @if (createForm.get('password')?.errors?.['required']) {
+      <span class="error-msg">La contraseña es obligatoria</span>
+      }
+      @if (createForm.get('password')?.errors?.['minlength']) {
+      <span class="error-msg">Mínimo 6 caracteres</span>
+      }
+    </div>
+    <div class="form-group">
+      <label>Nombre *</label>
+      <input type="text" formControlName="name" placeholder="Nombre completo">
+      @if (createForm.get('name')?.errors?.['required']) {
+      <span class="error-msg">El nombre es obligatorio</span>
+      }
+    </div>
+    <div class="form-group">
+      <label>Rol *</label>
+      <select formControlName="role">
+        <option value="TECHNICIAN">Técnico</option>
+        <option value="COORDINATOR">Coordinador</option>
+        <option value="ATTENDEE">Acudiente</option>
+        <option value="ADMIN">Administrador</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Teléfono</label>
+      <input type="text" formControlName="phone" placeholder="3001234567">
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeCreateModal()">
+        <i class='bx bx-x'></i>
+        <span>Cancelar</span>
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="createForm.invalid || isSubmitting">
+        @if (!isSubmitting) {
+        <span>
+          <i class='bx bx-check'></i>
+          Crear
+        </span>
+        }
+        @if (isSubmitting) {
+        <span>
+          <i class='bx bx-loader-alt bx-spin'></i>
+          Creando...
+        </span>
+        }
+      </button>
+    </div>
+  </form>
+</app-modal-dialog>
+
+  @if (showEditModal && selectedUser) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Editar Usuario</h3>
+        <button class="btn-close" (click)="closeEditModal()">
+          <i class='bx bx-x'></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editForm" (ngSubmit)="updateUser()">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" formControlName="name">
+            @if (editForm.get('name')?.errors?.['required']) {
+            <span class="error-msg">El nombre es obligatorio</span>
+            }
+          </div>
+          <div class="form-group">
+            <label>Rol *</label>
+            <select formControlName="role">
+              <option value="TECHNICIAN">Técnico</option>
+              <option value="COORDINATOR">Coordinador</option>
+              <option value="ATTENDEE">Acudiente</option>
+              <option value="ADMIN">Administrador</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" formControlName="phone">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [value]="selectedUser.email" disabled>
+            <span class="text-muted">No se puede modificar el email</span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeEditModal()">
+              <i class='bx bx-x'></i>
+              <span>Cancelar</span>
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="editForm.invalid || isSubmitting">
+              @if (!isSubmitting) {
+              <span>
+                <i class='bx bx-check'></i>
+                Guardar
+              </span>
+              }
+              @if (isSubmitting) {
+              <span>
+                <i class='bx bx-loader-alt bx-spin'></i>
+                Guardando...
+              </span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  }
 </div>

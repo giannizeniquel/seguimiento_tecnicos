@@ -1,23 +1,185 @@
-<div class="container-fluid py-4">
-  <div class="row justify-content-center">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body text-center">
-          <h1>
-            <i class="bi bi-list-check text-primary"></i>
-          </h1>
-          <h3>Mis Asignaciones</h3>
-          <p class="text-muted">Este componente se implementará próximamente.</p>
-          <p class="text-muted">Mostrará las actividades asignadas al técnico actual, permitiendo:</p>
-          <ul class="list-unstyled text-start d-inline-block">
-            <li><i class="bi bi-check-circle text-success"></i> Ver lista de asignaciones</li>
-            <li><i class="bi bi-check-circle text-success"></i> Iniciar actividad asignada</li>
-            <li><i class="bi bi-check-circle text-success"></i> Registrar notas y observaciones</li>
-            <li><i class="bi bi-check-circle text-success"></i> Completar actividad</li>
-            <li><i class="bi bi-check-circle text-success"></i> Ver historial de la actividad</li>
-          </ul>
-        </div>
+<div class="assignments-page">
+  <div class="head-title">
+    <div class="left">
+      <h1>Mis Asignaciones</h1>
+      <ul class="breadcrumb">
+        <li><a href="#">Dashboard</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">Mis Asignaciones</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="info-boxes">
+    <div class="info-box">
+      <i class='bx bx-list-check'></i>
+      <div class="text">
+        <h3>{{ stats.total }}</h3>
+        <p>Total Asignaciones</p>
+      </div>
+    </div>
+    <div class="info-box pending">
+      <i class='bx bx-time'></i>
+      <div class="text">
+        <h3>{{ stats.pending }}</h3>
+        <p>Pendientes</p>
+      </div>
+    </div>
+    <div class="info-box progress">
+      <i class='bx bx-hourglass'></i>
+      <div class="text">
+        <h3>{{ stats.inProgress }}</h3>
+        <p>En Progreso</p>
       </div>
     </div>
   </div>
+
+  @if (errorMessage) {
+  <div class="alert-error">
+    <i class='bx bx-error'></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+  }
+
+  @if (isLoading) {
+  <div class="loading">
+    <i class='bx bx-loader-alt bx-spin'></i>
+    <span>Cargando asignaciones...</span>
+  </div>
+  }
+
+  @if (!isLoading) {
+  <div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Asignaciones Activas</h3>
+        <div class="filters-actions">
+          <select formControlName="status" (change)="applyFilters()">
+            <option value="">Todos los estados</option>
+            <option value="PENDING">Pendientes</option>
+            <option value="IN_PROGRESS">En Progreso</option>
+            <option value="COMPLETED">Completadas</option>
+            <option value="CANCELLED">Canceladas</option>
+          </select>
+          @if (filtersForm.value.status) {
+          <button class="btn-secondary" (click)="clearFilters()">
+            <i class='bx bx-x'></i>
+            Limpiar
+          </button>
+          }
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Actividad</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (activity of filteredActivities; track activity.id) {
+            <tr [class.overdue]="isOverdue(activity)">
+              <td>
+                <div class="title-cell">
+                  <strong>{{ activity.title }}</strong>
+                  @if (activity.locationAddress) {
+                  <small class="text-muted">
+                    <i class='bx bx-map'></i>
+                    {{ activity.locationAddress }}
+                  </small>
+                  }
+                  @if (activity.description) {
+                  <p class="description">{{ activity.description | slice:0:60 }}{{ activity.description.length > 60 ? '...' : '' }}</p>
+                  }
+                  @if (isOverdue(activity)) {
+                  <span class="overdue-badge">
+                    <i class='bx bx-error'></i>
+                    Vencida
+                  </span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span class="status {{ getStatusClass(activity.status) }}">
+                  {{ activity.status === 'IN_PROGRESS' ? 'En Progreso' :
+                     activity.status === 'COMPLETED' ? 'Completada' :
+                     activity.status === 'CANCELLED' ? 'Cancelada' : 'Pendiente' }}
+                </span>
+              </td>
+              <td>
+                <span class="status {{ getPriorityClass(activity.priority) }}">
+                  {{ activity.priority }}
+                </span>
+              </td>
+              <td>
+                <strong>{{ activity.scheduledStart | date:'dd/MM/yyyy HH:mm' }}</strong>
+                @if (activity.scheduledEnd) {
+                <br>
+                <small class="text-muted">a {{ activity.scheduledEnd | date:'HH:mm' }}</small>
+                }
+              </td>
+              <td>
+                <div class="actions-cell">
+                  <button class="btn-icon" (click)="goToActivity(activity.id)" title="Ver detalles">
+                    <i class='bx bx-show'></i>
+                  </button>
+                  @if (canStart(activity)) {
+                  <button class="btn-icon btn-success" (click)="startActivity(activity)" title="Iniciar">
+                    <i class='bx bx-play'></i>
+                  </button>
+                  }
+                  @if (canComplete(activity)) {
+                  <button class="btn-icon btn-success" (click)="completeActivity(activity)" title="Completar">
+                    <i class='bx bx-check'></i>
+                  </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center">No hay asignaciones para mostrar</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="todo">
+      <div class="head">
+        <h3>Resumen de Acciones</h3>
+        <i class='bx bx-list-ul'></i>
+      </div>
+      <ul class="todo-list">
+        @if (stats.pending > 0) {
+        <li class="not-completed">
+          <p>{{ stats.pending }} actividades pendientes por iniciar</p>
+          <i class='bx bx-time'></i>
+        </li>
+        }
+        @if (stats.inProgress > 0) {
+        <li class="not-completed">
+          <p>{{ stats.inProgress }} actividades en progreso</p>
+          <i class='bx bx-hourglass'></i>
+        </li>
+        }
+        @if (stats.completed > 0) {
+        <li class="completed">
+          <p>{{ stats.completed }} actividades completadas</p>
+          <i class='bx bx-check'></i>
+        </li>
+        }
+        @if (stats.total === 0) {
+        <li class="completed">
+          <p>No tienes asignaciones pendientes</p>
+          <i class='bx bx-check'></i>
+        </li>
+        }
+      </ul>
+    </div>
+  </div>
+  }
 </div>

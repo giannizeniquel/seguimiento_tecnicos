@@ -22,6 +22,11 @@ export const routes: Routes = [
       .then(m => m.ActivitiesListComponent)
   },
   {
+    path: 'activities/new',
+    loadComponent: () => import('./features/activities/pages/activity-detail/activity-detail.component')
+      .then(m => m.ActivityDetailComponent)
+  },
+  {
     path: 'activities/:id',
     loadComponent: () => import('./features/activities/pages/activity-detail/activity-detail.component')
       .then(m => m.ActivityDetailComponent)

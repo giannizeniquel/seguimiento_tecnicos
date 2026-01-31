@@ -28,4 +28,12 @@ export class AssignmentService {
   deleteAssignment(id: string): Observable<{ message: string }> {
     return this.apiService.delete<{ message: string }>(`/assignments/${id}`);
   }
+
+  assignActivity(activityId: string, data: { technicianId: string; assignmentNotes?: string }): Observable<any> {
+    return this.apiService.post<any>(`/activities/${activityId}/assign`, data);
+  }
+
+  unassignActivity(activityId: string): Observable<{ message: string }> {
+    return this.apiService.delete<{ message: string }>(`/activities/${activityId}/assign`);
+  }
 }

@@ -1,3 +1,350 @@
-.my-assignments-component {
-  min-height: 80vh;
+.assignments-page {
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 60px 20px;
+    color: var(--dark-grey);
+
+    i {
+      font-size: 32px;
+    }
+
+    span {
+      font-size: 16px;
+    }
+  }
+
+  .alert-error {
+    background: var(--light-orange);
+    color: var(--orange);
+    padding: 16px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+    font-size: 14px;
+
+    i {
+      font-size: 20px;
+    }
+  }
+
+  .info-boxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  .info-box {
+    padding: 24px;
+    background: var(--light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    i {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      font-size: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--light-blue);
+      color: var(--blue);
+    }
+
+    &.pending i {
+      background: var(--light-orange);
+      color: var(--orange);
+    }
+
+    &.progress i {
+      background: var(--light-yellow);
+      color: var(--yellow);
+    }
+
+    .text h3 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .text p {
+      color: var(--dark);
+    }
+  }
+
+  .table-data {
+    margin-top: 24px;
+  }
+
+  .table-data .order {
+    flex-grow: 1;
+    flex-basis: 500px;
+  }
+
+  .table-data .order .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .filters-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    select {
+      padding: 8px 12px;
+      border: 2px solid var(--grey);
+      border-radius: 10px;
+      background: var(--grey);
+      color: var(--dark);
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+
+      &:focus {
+        border-color: var(--blue);
+        background: var(--light);
+      }
+    }
+
+    .btn-secondary {
+      height: 32px;
+      padding: 0 12px;
+      border: none;
+      border-radius: 16px;
+      background: var(--dark-grey);
+      color: var(--light);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+
+      i {
+        font-size: 14px;
+      }
+
+      &:hover {
+        background: var(--dark);
+      }
+    }
+  }
+
+  .table-data .order table {
+    thead th {
+      border-bottom: 1px solid var(--grey);
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    tbody tr {
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: var(--grey);
+      }
+
+      &.overdue {
+        background: var(--light-orange);
+      }
+    }
+
+    .title-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      strong {
+        color: var(--dark);
+        font-size: 14px;
+      }
+
+      .text-muted {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--dark-grey);
+      }
+
+      .description {
+        margin: 4px 0 0 0;
+        color: var(--dark-grey);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .overdue-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        background: var(--red);
+        color: var(--light);
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 4px;
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .text-center {
+      text-align: center;
+      color: var(--dark-grey);
+      font-size: 14px;
+    }
+  }
+
+  .status {
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    &.completed {
+      background: var(--blue);
+      color: var(--light);
+    }
+
+    &.process {
+      background: var(--yellow);
+      color: var(--dark);
+    }
+
+    &.pending {
+      background: var(--orange);
+      color: var(--light);
+    }
+
+    &.cancelled {
+      background: var(--red);
+      color: var(--light);
+    }
+
+    &.urgent {
+      background: var(--red);
+      color: var(--light);
+    }
+
+    &.high {
+      background: var(--orange);
+      color: var(--light);
+    }
+
+    &.medium {
+      background: var(--yellow);
+      color: var(--dark);
+    }
+
+    &.low {
+      background: var(--dark-grey);
+      color: var(--light);
+    }
+  }
+
+  .actions-cell {
+    display: flex;
+    gap: 8px;
+
+    button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+
+      i {
+        font-size: 16px;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+    }
+
+    .btn-icon {
+      background: var(--light-blue);
+      color: var(--blue);
+    }
+
+    .btn-success {
+      background: var(--blue);
+      color: var(--light);
+
+      &:hover {
+        background: #2d7bd4;
+      }
+    }
+  }
+
+  .table-data .todo {
+    flex-grow: 1;
+    flex-basis: 300px;
+  }
+
+  .table-data .todo .todo-list {
+    width: 100%;
+  }
+
+  .table-data .todo .todo-list li {
+    width: 100%;
+    margin-bottom: 16px;
+    background: var(--grey);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    p {
+      margin: 0;
+      color: var(--dark);
+      font-size: 14px;
+    }
+
+    i {
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    &.completed {
+      border-left: 10px solid var(--blue);
+
+      p {
+        color: var(--dark-grey);
+      }
+
+      i {
+        color: var(--blue);
+      }
+    }
+
+    &.not-completed {
+      border-left: 10px solid var(--orange);
+
+      i {
+        color: var(--orange);
+      }
+    }
+  }
 }

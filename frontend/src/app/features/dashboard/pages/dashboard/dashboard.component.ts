@@ -1,35 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ActivityService } from '../../../../core/services/activity.service';
-import { IActivity } from '../../../../core/models';
+import { AssignmentService } from '../../../../core/services/assignment.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { IUser } from '../../../../core/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  activities: IActivity[] = [];
+  activities: any[] = [];
   isLoading = false;
-  currentUser: any = null;
+  currentUser: IUser | null = null;
   stats = {
     pending: 0,
     inProgress: 0,
     completed: 0,
     cancelled: 0
   };
-  recentActivities: IActivity[] = [];
+  recentActivities: any[] = [];
 
   constructor(
     private activityService: ActivityService,
-    private router: Router,
-    @Inject(ActivityService) private _activityService: ActivityService
+    private assignmentService: AssignmentService,
+    private authService: AuthService,
+    private router: Router
   ) {
-    this.activityService = _activityService;
+    this.currentUser = this.authService.getCurrentUserValue();
   }
 
   ngOnInit(): void {
@@ -40,8 +42,8 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
 
     if (this.currentUser?.role === 'TECHNICIAN') {
-      this.activityService.getAssignments().subscribe({
-        next: (assignments) => {
+      this.assignmentService.getAssignments().subscribe({
+        next: (assignments: any[]) => {
           const activities = assignments.map(a => a.activity);
           this.activities = activities;
           this.calculateStats(activities);
@@ -67,7 +69,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  calculateStats(activities: IActivity[]): void {
+  calculateStats(activities: any[]): void {
     this.stats.pending = activities.filter(a => a.status === 'PENDING').length;
     this.stats.inProgress = activities.filter(a => a.status === 'IN_PROGRESS').length;
     this.stats.completed = activities.filter(a => a.status === 'COMPLETED').length;
@@ -76,50 +78,5 @@ export class DashboardComponent implements OnInit {
 
   goToActivity(id: string): void {
     this.router.navigate(['/activities', id]);
-  }
-
-  getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-warning text-dark';
-      case 'IN_PROGRESS':
-        return 'bg-info text-white';
-      case 'COMPLETED':
-        return 'bg-success text-white';
-      case 'CANCELLED':
-        return 'bg-danger text-white';
-      default:
-        return 'bg-secondary';
-    }
-  }
-
-  getStatusIcon(status: string): string {
-    switch (status) {
-      case 'PENDING':
-        return 'bi-clock';
-      case 'IN_PROGRESS':
-        return 'bi-hourglass-split';
-      case 'COMPLETED':
-        return 'bi-check-circle';
-      case 'CANCELLED':
-        return 'bi-x-circle';
-      default:
-        return 'bi-question-circle';
-    }
-  }
-
-  getPriorityBadgeClass(priority: string): string {
-    switch (priority) {
-      case 'URGENT':
-        return 'bg-danger';
-      case 'HIGH':
-        return 'bg-warning text-dark';
-      case 'MEDIUM':
-        return 'bg-info text-white';
-      case 'LOW':
-        return 'bg-secondary text-white';
-      default:
-        return 'bg-secondary';
-    }
   }
 }

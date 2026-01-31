@@ -10,7 +10,24 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<IUser | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) {
+    this.loadUserFromStorage();
+  }
+
+  private loadUserFromStorage(): void {
+    const storedUser = localStorage.getItem('user');
+    console.log('AuthService - User from localStorage:', storedUser);
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        console.log('AuthService - Parsed user:', user);
+        this.currentUserSubject.next(user);
+      } catch (e) {
+        console.error('AuthService - Error parsing user:', e);
+        localStorage.removeItem('user');
+      }
+    }
+  }
 
   login(credentials: ILoginRequest): Observable<ILoginResponse> {
     return this.apiService.post<ILoginResponse>('/auth/login', credentials);

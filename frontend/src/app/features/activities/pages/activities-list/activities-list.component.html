@@ -1,192 +1,162 @@
-<div class="container-fluid">
-  <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="h3">
-        <i class="bi bi-list-task"></i>
-        Actividades
-        <button class="btn btn-primary btn-sm ms-2" *ngIf="currentUser?.role !== 'TECHNICIAN'" (click)="createActivity()">
-          <i class="bi bi-plus"></i>
-          Nueva
-        </button>
-      </h1>
+<div class="activities-page">
+  <div class="head-title">
+    <div class="left">
+      <h1>Actividades</h1>
+      <ul class="breadcrumb">
+        <li><a href="#">Dashboard</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">Actividades</a></li>
+      </ul>
     </div>
+    <button class="btn-secondary" (click)="toggleFilters()">
+      <i class='bx bx-filter'></i>
+      <span>{{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}</span>
+    </button>
+    @if (canCreateActivity()) {
+    <button class="btn-primary" (click)="createActivity()">
+      <i class='bx bx-plus'></i>
+      <span>Nueva Actividad</span>
+    </button>
+    }
   </div>
 
-  <div class="row mb-4">
-    <div class="col-12">
-      <button class="btn btn-outline-secondary" (click)="toggleFilters()">
-        <i class="bi bi-funnel"></i>
-        {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
+  @if (showFilters) {
+  <div class="filters-container">
+    <div class="filters-header">
+      <h3><i class='bx bx-funnel'></i> Filtros</h3>
+      <button class="btn-secondary" (click)="clearFilters()">
+        <i class='bx bx-x'></i>
+        Limpiar
       </button>
     </div>
-  </div>
-
-  <div *ngIf="showFilters" class="row mb-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Filtros</h5>
-          <form [formGroup]="filtersForm">
-            <div class="row">
-              <div class="col-md-3 mb-3">
-                <label for="status" class="form-label">Estado</label>
-                <select id="status" class="form-select" formControlName="status">
-                  <option value="">Todos</option>
-                  <option value="PENDING">Pendiente</option>
-                  <option value="IN_PROGRESS">En Progreso</option>
-                  <option value="COMPLETED">Completada</option>
-                  <option value="CANCELLED">Cancelada</option>
-                </select>
-              </div>
-              <div class="col-md-3 mb-3">
-                <label for="priority" class="form-label">Prioridad</label>
-                <select id="priority" class="form-select" formControlName="priority">
-                  <option value="">Todas</option>
-                  <option value="URGENT">Urgente</option>
-                  <option value="HIGH">Alta</option>
-                  <option value="MEDIUM">Media</option>
-                  <option value="LOW">Baja</option>
-                </select>
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="search" class="form-label">Buscar</label>
-                <input
-                  type="text"
-                  id="search"
-                  class="form-control"
-                  formControlName="search"
-                  placeholder="Buscar por título...">
-              </div>
-              <div class="col-md-2 mb-3">
-                <label class="form-label">&nbsp;</label>
-                <button class="btn btn-secondary w-100" (click)="clearFilters()">
-                  <i class="bi bi-x-circle"></i>
-                  Limpiar
-                </button>
-              </div>
-            </div>
-          </form>
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Estado</label>
+        <select formControlName="status">
+          <option value="">Todos</option>
+          <option value="PENDING">Pendiente</option>
+          <option value="IN_PROGRESS">En Progreso</option>
+          <option value="COMPLETED">Completada</option>
+          <option value="CANCELLED">Cancelada</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Prioridad</label>
+        <select formControlName="priority">
+          <option value="">Todas</option>
+          <option value="URGENT">Urgente</option>
+          <option value="HIGH">Alta</option>
+          <option value="MEDIUM">Media</option>
+          <option value="LOW">Baja</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Buscar</label>
+        <div class="form-input">
+          <i class='bx bx-search'></i>
+          <input type="text" formControlName="search" placeholder="Buscar por título...">
         </div>
       </div>
     </div>
   </div>
+  }
 
-  <div *ngIf="isLoading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando...</span>
-    </div>
-  </div>
-
-  <div *ngIf="!isLoading && pagedActivities.length === 0" class="text-center py-5">
-    <div class="alert alert-info">
-      <i class="bi bi-info-circle"></i>
-      No se encontraron actividades con los filtros seleccionados.
-    </div>
-  </div>
-
-  <div *ngIf="!isLoading && pagedActivities.length > 0">
-    <div class="row">
-      <div class="col-12">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-dark">
-              <tr>
-                <th>Título</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Prioridad</th>
-                <th>Fecha Programada</th>
-                <th>Asignado A</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let activity of pagedActivities">
-                <td>
-                  <span class="fw-bold">{{ activity.title }}</span>
+  <div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Lista de Actividades</h3>
+        <i class='bx bx-search'></i>
+        <i class='bx bx-filter'></i>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Fecha</th>
+            <th>Asignado A</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (activity of pagedActivities; track activity.id) {
+            <tr>
+              <td>
+                <div class="title-cell">
+                  <strong>{{ activity.title }}</strong>
                   @if (activity.locationAddress) {
-                    <small class="text-muted d-block mt-1">
-                      <i class="bi bi-geo-alt"></i>
+                    <small class="text-muted">
+                      <i class='bx bx-map'></i>
                       {{ activity.locationAddress }}
                     </small>
                   }
-                </td>
-                <td>
-                  <span *ngIf="activity.description">
-                    {{ activity.description | slice:0:50 }}{{ activity.description.length > 50 ? '...' : '' }}
-                  </span>
-                </td>
-                <td>
-                  <span [class]="'badge ' + getStatusBadgeClass(activity.status)">
-                    <i class="bi bi-clock" *ngIf="activity.status === 'PENDING'"></i>
-                    <i class="bi bi-hourglass-split" *ngIf="activity.status === 'IN_PROGRESS'"></i>
-                    <i class="bi bi-check-circle" *ngIf="activity.status === 'COMPLETED'"></i>
-                    <i class="bi bi-x-circle" *ngIf="activity.status === 'CANCELLED'"></i>
-                    {{ activity.status === 'IN_PROGRESS' ? 'En Progreso' : 
-                           activity.status === 'COMPLETED' ? 'Completada' :
-                           activity.status === 'CANCELLED' ? 'Cancelada' : 'Pendiente' }}
-                  </span>
-                </td>
-                <td>
-                  <span [class]="'badge ' + getPriorityBadgeClass(activity.priority)">
-                    {{ activity.priority }}
-                  </span>
-                </td>
-                <td>
-                  {{ activity.scheduledStart | date:'dd/MM/yyyy HH:mm' }}
-                  <small class="text-muted d-block" *ngIf="activity.scheduledEnd">
-                    a {{ activity.scheduledEnd | date:'dd/MM/yyyy HH:mm' }}
-                  </small>
-                </td>
-                <td>
-                  @if (activity.assignedTo) {
-                    <i class="bi bi-person"></i>
+                </div>
+              </td>
+              <td>
+                <span class="status {{ activity.status === 'PENDING' ? 'pending' :
+                                       activity.status === 'IN_PROGRESS' ? 'process' :
+                                       activity.status === 'COMPLETED' ? 'completed' : 'cancelled' }}">
+                  {{ activity.status === 'IN_PROGRESS' ? 'En Progreso' :
+                     activity.status === 'COMPLETED' ? 'Completada' :
+                     activity.status === 'CANCELLED' ? 'Cancelada' : 'Pendiente' }}
+                </span>
+              </td>
+              <td>
+                <span class="status {{ activity.priority === 'URGENT' ? 'urgent' :
+                                       activity.priority === 'HIGH' ? 'high' :
+                                       activity.priority === 'MEDIUM' ? 'medium' : 'low' }}">
+                  {{ activity.priority }}
+                </span>
+              </td>
+              <td>
+                {{ activity.scheduledStart | date:'dd/MM/yyyy HH:mm' }}
+                @if (activity.scheduledEnd) {
+                  <br>
+                  <small class="text-muted">a {{ activity.scheduledEnd | date:'dd/MM/yyyy HH:mm' }}</small>
+                }
+              </td>
+              <td>
+                @if (activity.assignedTo) {
+                  <div class="user-cell">
+                    <i class='bx bx-user'></i>
                     {{ activity.assignedTo.name }}
-                  }
-                  @if (!activity.assignedTo) {
-                    <span class="text-muted">Sin asignar</span>
-                  }
-                </td>
-                <td>
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" (click)="goToActivity(activity.id)" title="Ver detalles">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-success" (click)="goToActivity(activity.id)" title="Ver detalles" *ngIf="activity.status === 'PENDING' || activity.status === 'IN_PROGRESS'">
-                      <i class="bi bi-play"></i>
-                    </button>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+                }
+                @if (!activity.assignedTo) {
+                  <span class="text-muted">Sin asignar</span>
+                }
+              </td>
+              <td>
+                <div class="actions-cell">
+                  <button class="btn-icon" (click)="goToActivity(activity.id)" title="Ver detalles">
+                    <i class='bx bx-show'></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center">No se encontraron actividades</td>
+            </tr>
+          }
+        </tbody>
+      </table>
 
-    <!-- Pagination -->
-    <div class="row mt-4">
-      <div class="col-12">
-        <nav aria-label="Paginación">
-          <ul class="pagination justify-content-center">
-            <li class="page-item" [class.disabled]="currentPage === 1">
-              <button class="page-link" (click)="previousPage()" [disabled]="currentPage === 1">
-                <i class="bi bi-chevron-left"></i>
-                Anterior
-              </button>
-            </li>
-            <li class="page-item active">
-              <span class="page-link">Página {{ currentPage }} de {{ totalPages }}</span>
-            </li>
-            <li class="page-item" [class.disabled]="currentPage === totalPages">
-              <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
-                Siguiente
-                <i class="bi bi-chevron-right"></i>
-              </button>
-            </li>
-          </ul>
-        </nav>
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+          <i class='bx bx-chevron-left'></i>
+          Anterior
+        </button>
+        <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Siguiente
+          <i class='bx bx-chevron-right'></i>
+        </button>
       </div>
+      }
     </div>
   </div>
 </div>

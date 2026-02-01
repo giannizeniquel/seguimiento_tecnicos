@@ -28,18 +28,18 @@ body {
 }
 
 /* Global form styling for modals (to keep UI consistent when using shared modal) */
-.modal-overlay .modal .modal-body .form-group {
+.overlay .modal-body .form-group {
   margin-bottom: 16px;
 }
-.modal-overlay .modal .modal-body label {
+.overlay .modal-body label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 500;
   color: var(--dark);
 }
-.modal-overlay .modal .modal-body input,
-.modal-overlay .modal .modal-body select {
+.overlay .modal-body input,
+.overlay .modal-body select {
   width: 100%;
   padding: 12px 16px;
   border: 2px solid var(--grey);
@@ -50,12 +50,12 @@ body {
   outline: none;
   transition: all 0.3s ease;
 }
-.modal-overlay .modal .modal-body input:focus,
-.modal-overlay .modal .modal-body select:focus {
+.overlay .modal-body input:focus,
+.overlay .modal-body select:focus {
   border-color: var(--blue);
   background: var(--light);
 }
-.modal-overlay .modal .modal-body .error-msg {
+.overlay .modal-body .error-msg {
   color: var(--red);
   font-size: 12px;
 }

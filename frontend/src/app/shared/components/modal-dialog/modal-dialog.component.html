@@ -1,4 +1,4 @@
-<div class="overlay" [style.display]="open ? 'grid' : 'none'" (click)="onClose()">
+<div class="overlay" [style.display]="open ? 'grid' : 'none'" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="title">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>{{ title }}</h3>
